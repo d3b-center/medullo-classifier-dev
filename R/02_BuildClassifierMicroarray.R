@@ -106,6 +106,31 @@ sampAnnot[,2] <- gsub("G3", "Group3", sampAnnot[,2])
 sampAnnot[,2] <- gsub("G4", "Group4", sampAnnot[,2])
 sampAnnot[,2] <- gsub("SHH OUTLIER", "SHH", sampAnnot[,2])
 
+# t-SNE (all genes)
+sampAnnot <- annot_37418[,c("Sex:ch1", "subgroup:ch1")]
+sampAnnot[,2] <- gsub("G3", "Group3", sampAnnot[,2])
+sampAnnot[,2] <- gsub("G4", "Group4", sampAnnot[,2])
+sampAnnot[,2] <- gsub("SHH OUTLIER", "SHH", sampAnnot[,2])
+sampAnnot[,2] <- gsub("U", "Unknown", sampAnnot[,2])
+
+set.seed(42)
+tsneOut <- Rtsne(t(exprs_37418), initial_dims=200, perplexity=10, max_iter=500)
+tsneOut <- data.frame(tsneOut$Y, sampAnnot)
+tsneOut$Subgroup <- factor(tsneOut$subgroup.ch1, levels = c("Group3", "Group4", "SHH", "WNT", "Unknown"))
+tsne1 <- ggplot(tsneOut, aes(X1, X2, shape = Subgroup, color = Subgroup))+
+  geom_point(size = 5, alpha = 0.6)+
+  theme_bw()+
+  ggtitle("T-SNE Medulloblastoma All Genes - DS2") +
+  theme_Publication() + xlab("PC1") + ylab("PC2")  +
+  theme(legend.position = "bottom", legend.direction = "horizontal") +
+  scale_color_manual(values = c("Group3" = "#F8766D", 
+                                "Group4" = "#7CAE00", 
+                                "SHH" = "#00BFC4", 
+                                "WNT" = "#C77CFF", 
+                                "Unknown" = "#000000"))
+ggsave(plot = tsne1, filename = "results/plots/scatterPlotTSNE_AllGenes-DS2.png", width = 7, height = 6)
+
+
 # Run Limma
 outputGR <- runLimma(sampAnnot[2], 
 	cont=c("SHH-Group4", "SHH-Group3", "SHH-WNT",

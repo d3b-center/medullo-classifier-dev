@@ -220,14 +220,22 @@ fig2b <- pheatmap(expDataFts_QN[bestGenes,],
 dev.off()
 
 # TSNE with all data
-tsneOut <- Rtsne::Rtsne(t(expDataFts_QN), initial_dims=100, perplexity=20, max_iter=1000)
+set.seed(42)
+tsneOut <- Rtsne(t(expDataFts_QN), initial_dims=200, perplexity=10, max_iter=500)
 tsneOut <- data.frame(tsneOut$Y, sampAnnot)
-tsne1 <- ggplot2::ggplot(tsneOut, aes(X1, X2, shape = Subgroup, color = Subgroup))+
-	ggplot2::geom_point(size = 5, alpha = 0.6)+
-	ggplot2::theme_bw()+
-	ggplot2::ggtitle("T-SNE Medulloblastoma All Genes")+
-	theme_Publication()
-ggsave(plot = tsne1, filename = "results/plots/scatterPlotTSNE_AllGenes.png", width = 7, height = 6)
+tsneOut$Subgroup <- factor(tsneOut$Subgroup, levels = c("Group3", "Group4", "SHH", "WNT", "Unknown"))
+tsne1 <- ggplot(tsneOut, aes(X1, X2, shape = Subgroup, color = Subgroup))+
+  geom_point(size = 5, alpha = 0.6)+
+  theme_bw()+
+  ggtitle("T-SNE Medulloblastoma All Genes - DS1") +
+  theme_Publication() + xlab("PC1") + ylab("PC2")  +
+  theme(legend.position = "bottom", legend.direction = "horizontal") +
+  scale_color_manual(values = c("Group3" = "#F8766D", 
+                                "Group4" = "#7CAE00", 
+                                "SHH" = "#00BFC4", 
+                                "WNT" = "#C77CFF", 
+                                "Unknown" = "#000000"))
+ggsave(plot = tsne1, filename = "results/plots/scatterPlotTSNE_AllGenes-DS1.png", width = 7, height = 6)
 
 # TSNE only using Best Genes data
 tsneOut <- Rtsne(t(log2(expDataFts+1)[bestGenes,]), initial_dims=100, perplexity=20, max_iter=1000)
