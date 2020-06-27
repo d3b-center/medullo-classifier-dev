@@ -45,10 +45,10 @@ write.csv(medulloSigTS, file = 'results/tables/SuppTable2.csv', quote = F, row.n
 medulloSigTSCount <- data.frame(table(medulloSigTS[,"Subtype"]))
 medulloSigTSCount$Var1 <- factor(medulloSigTSCount$Var1, levels = c("Group3", "Group4", "SHH", "WNT", "Unknown"))
 colnames(medulloSigTSCount) <- c("subtype","gers")
-fig2c  <- ggplot(medulloSigTSCount, aes(x = subtype, y = gers, fill = subtype)) + 
+fig2c  <- ggplot(medulloSigTSCount, aes(x = subtype, y = gers, fill = subtype)) +
   geom_bar(stat = "identity") +
   geom_text(aes(label = gers, hjust = 0.5, vjust = 2), color = 'white') +
-  xlab("Molecular Subtype") + ylab("Count of GERs") +  
+  xlab("Molecular Subtype") + ylab("Count of GERs") +
   theme_Publication(base_size = 10) + guides(fill = FALSE)
 ggsave(plot = fig2c, filename = "results/plots/Figure2C.png", width = 6, height = 4)
 save(fig2c, file = 'results/Fig_2C.RData')
@@ -70,12 +70,12 @@ fig3a <- ggplot(tsneOut, aes(X1, X2, shape = Subgroup, color = Subgroup))+
   geom_point(size = 5, alpha = 0.6)+
   theme_bw()+
   # ggtitle("T-SNE Medulloblastoma Gene Ratios - DS1") +
-  theme_Publication(base_size = 10) + xlab("PC1") + ylab("PC2")  +
+  theme_Publication(base_size = 10) + xlab("tSNE dimension 1") + ylab("tSNE dimension 2")  +
   theme(legend.position = "bottom", legend.direction = "horizontal") +
-  scale_color_manual(values = c("Group3" = "#F8766D", 
-                                "Group4" = "#7CAE00", 
-                                "SHH" = "#00BFC4", 
-                                "WNT" = "#C77CFF", 
+  scale_color_manual(values = c("Group3" = "#F8766D",
+                                "Group4" = "#7CAE00",
+                                "SHH" = "#00BFC4",
+                                "WNT" = "#C77CFF",
                                 "Unknown" = "#000000"))
 fig3a
 ggsave(plot = fig3a, filename = "results/plots/Figure3A.png", width = 7, height = 6)
@@ -95,12 +95,12 @@ fig3b <- ggplot(tsneOut, aes(X1, X2, shape = Subgroup, color = Subgroup))+
   geom_point(size = 5, alpha = 0.6)+
   theme_bw()+
   # ggtitle("T-SNE Medulloblastoma Gene Ratios - DS2") +
-  theme_Publication(base_size = 10) + xlab("PC1") + ylab("PC2") +
+  theme_Publication(base_size = 10) + xlab("tSNE dimension 1") + ylab("tSNE dimension 2") +
   theme(legend.position = "bottom", legend.direction = "horizontal") +
-  scale_color_manual(values = c("Group3" = "#F8766D", 
-                                "Group4" = "#7CAE00", 
-                                "SHH" = "#00BFC4", 
-                                "WNT" = "#C77CFF", 
+  scale_color_manual(values = c("Group3" = "#F8766D",
+                                "Group4" = "#7CAE00",
+                                "SHH" = "#00BFC4",
+                                "WNT" = "#C77CFF",
                                 "Unknown" = "#000000"))
 fig3b
 ggsave(plot = q, filename = "results/plots/Figure3B.png", width = 7, height = 6)
@@ -124,9 +124,9 @@ getTopXBar <- function(myMat=NULL, topx=5) {
   myTabTmp <- myTabTmp[order(-myTabTmp[,3]),];
   myTabTmp[,1] <- factor(myTabTmp[,1], levels=unique(myTabTmp[,1]))
   colnames(myTabTmp)[1] <- "Gene";
-  p <- ggplot(myTabTmp, aes(Gene, Freq)) + 
+  p <- ggplot(myTabTmp, aes(Gene, Freq)) +
     geom_bar(stat="identity") + facet_grid(~ind, scales="free")
-  p <- p + theme_Publication(base_size = 10) + 
+  p <- p + theme_Publication(base_size = 10) +
     theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1))
   p <- p + ylab("Frequency")
   return(list(myTabTmp, p))
@@ -151,7 +151,7 @@ g_legend<-function(a.gplot){
   legend <- tmp$grobs[[leg]]
   return(legend)}
 mylegend <- g_legend(fig3b)
-ggexport(ggarrange(ggarrange(fig3a + theme(legend.position="none"), 
+ggexport(ggarrange(ggarrange(fig3a + theme(legend.position="none"),
                              fig3b + theme(legend.position="none"), nrow = 1, labels = c("A", "B")),
                    mylegend,
                    ggarrange(fig3c, fig3d, nrow = 1, labels = c("C", "D")), nrow = 3, heights = c(5, 1, 6)),
@@ -172,26 +172,26 @@ getBoxPlot <- function(x, types) {
   tmp[,"Sample"] <- rownames(tmp)
   tmp <- gather(tmp, key="Feature", value="Ratio", -Class, -Sample)
   tmp[,"Dataset"] <- "DS1"
-  
+
   tmp2 <- data.frame(t(ds2geneRatioOut[x,]), ds2sampAnnot[,2]);
   colnames(tmp2)[ncol(tmp2)] <- "Class"
   tmp2[,"Sample"] <- rownames(tmp2)
   tmp2 <- gather(tmp2, key="Feature", value="Ratio", -Class, -Sample)
   tmp2[,"Dataset"] <- "DS2"
   tmp <- rbind(tmp, tmp2);
-  
+
   # Now need to replace features with class represented
   myRep <- paste(types, x, sep=": ")
   for(i in 1:length(myRep)) {
     tmp[,"Feature"] <- gsub(x[i], myRep[i], tmp[,"Feature"])
   }
-  ggplot(tmp, aes(x = Class, y = log2(Ratio), fill = Class)) + 
+  ggplot(tmp, aes(x = Class, y = log2(Ratio), fill = Class)) +
     geom_boxplot(lwd = 0.5, fatten = 0.5, outlier.shape = 1, width = 0.8, outlier.size = 1, aes(fill = Class)) +
     geom_jitter(width = 0.1, pch = 21, stroke = 0.2, aes(fill = Class)) +
     #  theme_bw() +
     theme_Publication2(base_size = 10) +
     theme(axis.text.x = element_blank()) +
-    facet_grid(Dataset~Feature) 
+    facet_grid(Dataset~Feature)
 }
 myRatios <- c("MAK_RGL1", "PTPN5_ROBO1", "ATOH1_OTX2", "AXIN2_DCX")
 types <- c("Group3", "Group4", "SHH", "WNT")

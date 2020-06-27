@@ -44,12 +44,12 @@ if(file.exists('results/GSE124814_split_results.RData')){
     df <- rbind(df, data.frame(var = "Accuracy", val = accuracy))
     return(df)
   }
-  
+
   # save stats
   stats <- ddply(actual, .variables = "study", .fun = function(x) classify.and.summarize(x, dat, type = "stats"))
   big.res <- dcast(stats, study~var, value.var = 'val')
   save(big.res, study.ct, file = 'results/GSE124814_split_results.RData')
-  
+
   # save predictions
   pred <- ddply(actual, .variables = "study", .fun = function(x) classify.and.summarize(x, dat, type = "pred"))
   save(pred, file = 'results/GSE124814_split_results_predictions.RData')
@@ -84,14 +84,14 @@ for.meta <- for.meta[order(for.meta$accuracy, for.meta$n),]
 # Accuracy: waterfall plot
 for.meta$label = paste0(for.meta$studies, '\n(n = ',for.meta$n,')')
 for.meta$label <- factor(for.meta$label, levels = for.meta$label)
-fig5a <- ggplot(for.meta, aes(x = label, y = accuracy, fill = accuracy)) + 
-  geom_bar(stat = "identity")  + 
+fig5a <- ggplot(for.meta, aes(x = label, y = accuracy, fill = accuracy)) +
+  geom_bar(stat = "identity")  +
   geom_text(aes(label = paste0(accuracy,"%"), vjust = 2), size = 2.5, color = "white") +
-  theme_Publication2(base_size = 10) + 
+  theme_Publication(base_size = 10) +
   theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1)) +
-  # ggtitle(paste0("Accuracy across 15 datasets (median = ",median(sort(for.meta$accuracy)),"%)")) +
+  # ggtitle(paste0("Accuracy across 15 microarray datasets (median = ",median(sort(for.meta$accuracy)),"%)")) +
   ylab("Accuracy (%)") + xlab("") +
-  geom_abline(slope = 0, intercept = median(sort(for.meta$accuracy)),  col = "red", lty=2) + 
+  geom_abline(slope = 0, intercept = median(sort(for.meta$accuracy)),  col = "red", lty=2) +
   scale_fill_continuous(high = "#132B43", low = "#56B1F7") + guides(fill = FALSE)
 fig5a
 ggsave(fig5a, filename = 'results/plots/Figure5A.png', device = "png", width = 7, height = 3)
@@ -105,25 +105,28 @@ sens_spec <- merge(sens_spec, study.ct, by.x = 'study', by.y = 'x')
 sens_spec$study <- paste0(sens_spec$study,"\n(n = ",sens_spec$freq,")")
 sens_spec$type <- factor(sens_spec$type, levels = c("Specificity","Sensitivity"))
 sens_spec$study <- factor(sens_spec$study, levels = levels(for.meta$label))
-fig5b <- ggplot(sens_spec[!is.na(sens_spec$value),], aes(x = study, value, group = type)) + 
+fig5b <- ggplot(sens_spec[!is.na(sens_spec$value),], aes(x = study, value, group = type)) +
   geom_line(aes(color = type), size = 0.5, alpha = 0.8, position=position_dodge(width=0.2)) +
-  geom_point(aes(color = type, shape = type), size = 2, position=position_dodge(width=0.2)) + 
+  geom_point(aes(color = type, shape = type), size = 2, position=position_dodge(width=0.2)) +
   ylab("Metric (in %)") +
-  facet_wrap(~var, nrow = 4, strip.position = "right") + 
+  facet_wrap(~var, nrow = 4, strip.position = "right") +
   theme_Publication(base_size = 10) + xlab("") +
-  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1)) + 
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1)) +
   labs(shape = 'Type', fill = 'Type', color = 'Type') +
   scale_color_manual(values=c("darkblue", "red")) +
-  theme(legend.text=element_text(size = 8), 
-        legend.title = element_text(size = 10), 
+  theme(legend.text=element_text(size = 8),
+        legend.title = element_text(size = 10),
         legend.position = "bottom", legend.direction = "horizontal",
-        strip.background=element_rect(colour="#000000",fill="#ffffff")) + 
-  # ggtitle("Sensitivity & Specificity across 15 datasets") + 
+        strip.background=element_rect(colour="#000000",fill="#ffffff")) +
+  # ggtitle("Sensitivity & Specificity across 15 microarray datasets") +
   ylim(c(1, 100))
 fig5b
 ggsave(fig5b, filename = 'results/plots/Figure5B.png', device = "png", width = 7, height = 5)
 
 # combine both figures
 library(ggpubr)
-ggexport(ggarrange(fig5a, fig5b, nrow = 2, labels = c("A", "B"), heights = c(0.45, 0.55)), 
+ggexport(ggarrange(fig5a, fig5b, nrow = 2, labels = c("A", "B"), heights = c(0.45, 0.55)),
+         filename = "results/plots/tmp.pdf")
+
+ggexport(ggarrange(fig5a, fig5b, nrow = 2, labels = c("A", "B"), heights = c(0.45, 0.55)),
          filename = "results/plots/Figure5.pdf")
