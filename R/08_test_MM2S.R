@@ -1,6 +1,8 @@
 # Author: Komal S. Rathi
 # Date: 10/19/2019
-# Function: Script to test MM2S package
+# Function:  
+# Accuracy comparison of MB classifier with MM2S package
+# SuppFigure3
 
 library(MM2S)
 library(MM2Sdata)
@@ -171,5 +173,5 @@ p <- ggplot(plot.dat, aes(x = label, y = accuracy, fill = classifier)) +
   scale_fill_brewer(palette = "Paired", direction = -1) +
   ggtitle("Accuracy comparison between MB Classifier and MM2S\n15 microarray test datasets")
 p
-ggsave(p, device = "pdf", filename = 'results/plots/Accuracy_Comparison_MM2S.pdf', width = 10, height = 6)
+ggsave(p, device = "pdf", filename = 'results/plots/SuppFigure3.pdf', width = 10, height = 6)
 
