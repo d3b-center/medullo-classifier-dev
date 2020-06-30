@@ -1,6 +1,6 @@
 # Author: Komal S. Rathi
 # Date: 10/19/2019
-# Function:  
+# Function:
 # Accuracy comparison of MB classifier with MM2S package
 # SuppFigure3
 
@@ -10,6 +10,7 @@ library(preprocessCore)
 library(medulloPackage)
 library(plyr)
 library(xlsx)
+library(ggplot2)
 
 source('R/utils/pubTheme.R')
 
@@ -46,7 +47,7 @@ observed_37418$characteristics_ch1 <- gsub("U", "Unknown", observed_37418$charac
 
 # Predict subtypes using MM2S package
 pred_37418 <- MM2S.human(InputMatrix = exprs_37418,
-                         parallelize = 4, 
+                         parallelize = 4,
                          seed = 12345, tempdir())
 pred_37418 <- as.data.frame(pred_37418$MM2S_Subtype)
 
@@ -91,10 +92,10 @@ run.mm2s <- function(meta, dat, type  = c("pred", "stats")){
   print(paste0('Study: ', unique(meta$study)))
   rownames(meta) <- meta$id
   dat.sub <- dat[,rownames(meta)]
-  
+
   # predict using MM2S
   pred <- MM2S.human(InputMatrix = dat.sub,
-                     parallelize = 4, 
+                     parallelize = 4,
                      seed = 12345, tempdir())
   pred <- as.data.frame(pred$MM2S_Subtype)
   total <- meta %>%
@@ -102,7 +103,7 @@ run.mm2s <- function(meta, dat, type  = c("pred", "stats")){
   if(type == "pred") {
     return(total)
   }
-  
+
   # test test
   res <- calcStats(myClassActual = total$observed,  myClassPred = total$MM2S_Prediction)
   accuracy <- res[[2]]$stats[[1]]
@@ -140,7 +141,7 @@ format.res <- function(big.res){
   cor <- as.numeric(gsub('%','',accuracy$Accuracy))
   studies <- accuracy$study
   n <- study.ct[study.ct$x %in% studies,'freq']
-  
+
   # format to add labels
   for.meta <- data.frame(studies, n, accuracy = cor)
   rownames(for.meta) <- for.meta$studies
@@ -170,8 +171,8 @@ p <- ggplot(plot.dat, aes(x = label, y = accuracy, fill = classifier)) +
   ylab("Accuracy (%)") + xlab("") +
   geom_abline(slope = 0, intercept = median(sort(medulloPackage.res$accuracy)),  col = "steelblue", lty = 2, lwd = 0.3) +
   geom_abline(slope = 0, intercept = median(sort(MM2S.res$accuracy)),  col = "lightblue", lty = 2, lwd = 0.3) +
-  scale_fill_brewer(palette = "Paired", direction = -1) +
-  ggtitle("Accuracy comparison between MB Classifier and MM2S\n15 microarray test datasets")
+  scale_fill_brewer(palette = "Paired", direction = -1)
+  #ggtitle("Accuracy comparison between MB Classifier and MM2S\n15 microarray test datasets")
 p
 ggsave(p, device = "pdf", filename = 'results/plots/SuppFigure3.pdf', width = 10, height = 6)
 
