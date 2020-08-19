@@ -39,7 +39,7 @@ rownames(geneAnnot) <- geneAnnot[,1]
 
 # Set row names as gene_id, this will be updated in the filter section to gene symbol
 rownames(expDataFts) <- expDataFts[,1]
-expDataFts <- data.frame(expDataFts[-1:-2])
+expDataFts <- data.frame(expDataFts[-1:-2], check.names = F)
 print(paste("The total number of genes is", nrow(expDataFts)))
 
 ####################
